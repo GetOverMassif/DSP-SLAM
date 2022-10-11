@@ -163,6 +163,8 @@ void Tracking::GetObjectDetectionsMono(KeyFrame *pKF)
 {
     PyThreadStateLock PyThreadLock;
 
+    mvImObjectMasks.clear();
+
     py::list detections = mpSystem->pySequence.attr("get_frame_by_id")(pKF->mnFrameId);
     int num_dets = detections.size();
     // No detections, return immediately
@@ -184,6 +186,8 @@ void Tracking::GetObjectDetectionsMono(KeyFrame *pKF)
                                                cv::Point(maskErrosion, maskErrosion));
         cv::erode(mask_cv, mask_erro, kernel);
 
+        mvImObjectMasks.push_back(std::move(mask_cv));
+        
         // get 2D feature points inside mask
         for (int i = 0; i < pKF->mvKeys.size(); i++)
         {

@@ -24,7 +24,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-#include<mutex>
+#include <mutex>
 
 namespace ORB_SLAM2
 {
@@ -44,10 +44,18 @@ cv::Mat FrameDrawer::DrawFrame()
     vector<bool> vbVO, vbMap; // Tracked MapPoints in current frame
     int state; // Tracking state
 
+    vector<cv::Mat> vmasks;
+
     //Copy variables within scoped mutex
     {
         unique_lock<mutex> lock(mMutex);
+
         state=mState;
+
+        for (auto mask: mvImObjectMasks) {
+            vmasks.push_back(mask);
+        }
+
         if(mState==Tracking::SYSTEM_NOT_READY)
             mState=Tracking::NO_IMAGES_YET;
 
@@ -73,6 +81,22 @@ cv::Mat FrameDrawer::DrawFrame()
 
     if(im.channels()<3) //this should be always true
         cvtColor(im,im,CV_GRAY2BGR);
+    
+    for (auto &mask: vmasks) {
+        cv::Mat mask_rgb = cv::Mat::zeros(mask.rows, mask.cols, CV_8UC3);
+        cv::Mat mask_grey = cv::Mat::zeros(mask.rows, mask.cols, CV_8UC1);
+        mask.convertTo(mask, CV_8U);
+        // cout << "       im info : " << im.rows << "," << im.cols << "," << im.type() << endl;
+        // cout << "     mask info : " << mask.rows << "," << mask.cols << "," << mask.type() << endl;
+        // cout << " mask_rgb info : " << mask_rgb.rows << "," << mask_rgb.cols << "," << mask_rgb.type() << endl;
+        // cout << "mask_grey info : " << mask_grey.rows << "," << mask_grey.cols << "," << mask_grey.type() << endl;
+        vector<cv::Mat> channels;
+        channels.push_back(mask_grey);
+        channels.emplace_back(mask_grey);
+        channels.emplace_back(mask);
+        merge(channels, mask_rgb);
+        cv::addWeighted(im, 1, mask_rgb, 0.2, 0.0, im);
+    }
 
     //Draw
     if(state==Tracking::NOT_INITIALIZED) //INITIALIZING
@@ -120,7 +144,7 @@ cv::Mat FrameDrawer::DrawFrame()
     }
 
     cv::Mat imWithInfo;
-    DrawTextInfo(im,state, imWithInfo);
+    DrawTextInfo(im, state, imWithInfo);
 
     return imWithInfo;
 }
@@ -173,7 +197,12 @@ void FrameDrawer::Update(Tracking *pTracker)
     mvbVO = vector<bool>(N,false);
     mvbMap = vector<bool>(N,false);
     mbOnlyTracking = pTracker->mbOnlyTracking;
+    mvImObjectMasks.clear();
 
+    for (auto img: pTracker->mvImObjectMasks) {
+        mvImObjectMasks.push_back(img);
+    }
+    
 
     if(pTracker->mLastProcessedState==Tracking::NOT_INITIALIZED)
     {

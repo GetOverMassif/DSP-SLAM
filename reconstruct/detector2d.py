@@ -71,7 +71,7 @@ class Detector2D(object):
         for o in object_class_table[object_class]:
             masks += self.predictions[1][o]
             n_det += len(self.predictions[1][o])
-
+        
         # In case there is no detections
         if n_det == 0:
             masks = np.zeros((0, 0, 0))
