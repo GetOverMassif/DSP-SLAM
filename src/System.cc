@@ -88,15 +88,25 @@ System::System(const string &strVocFile, const string &strSettingsFile, const st
 
     // Set Object-related variables
     py::initialize_interpreter();
+    std::cout << "91\n";
     cv::FileStorage fSettings(strSettingsFile, cv::FileStorage::READ);
+    std::cout << "93\n";
     py::module sys = py::module::import("sys");
+    std::cout << "95\n";
     sys.attr("path").attr("append")("./");
+    std::cout << "97\n";
     py::module io_utils = py::module::import("reconstruct.utils");
+    std::cout << "99\n";
     string pyCfgPath = fSettings["DetectorConfigPath"].string();
+    std::cout << "101\n";
     pyCfg = io_utils.attr("get_configs")(pyCfgPath);
+    std::cout << "103\n";
     pyDecoder = io_utils.attr("get_decoder")(pyCfg);
+    std::cout << "105\n";
     pySequence = py::module::import("reconstruct").attr("get_sequence")(strSequencePath, pyCfg);
+    std::cout << "107\n";
     InitThread();
+    std::cout << "109\n";
 
     //Create KeyFrame Database
     mpKeyFrameDatabase = new KeyFrameDatabase(*mpVocabulary);

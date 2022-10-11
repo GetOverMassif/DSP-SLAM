@@ -16,7 +16,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -march=native")
 
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 
-find_package(OpenCV 3.2 REQUIRED)
+# find_package(OpenCV 3.2 REQUIRED)
+set(OpenCV_DIR /home/lj/Downloads/Install/opencv-3.4.10/build)
+# set(Pangolin_DIR /home/lj/Documents/DSP-SLAM/Thirdparty/Pangolin/build)
+
+find_package(OpenCV 3.4 REQUIRED)
 find_package(Eigen3 3.4.0 REQUIRED)
 find_package(Pangolin REQUIRED)
 
