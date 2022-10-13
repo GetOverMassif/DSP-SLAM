@@ -42,6 +42,7 @@ public:
     void DrawObjects(bool bFollow, const Eigen::Matrix4f &Tec);
     void DrawCuboid(MapObject *pMO);
     void SetCurrentCameraPose(const Eigen::Matrix4f &Tcw);
+    void DrawFrame(const float w, const float h, const float l);
     std::list<MapObject*> mlNewMapObjects;
     Map *mpMap;
     MapDrawer *mpMapDrawer;

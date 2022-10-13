@@ -16,6 +16,9 @@
 */
 
 #include "ObjectDrawer.h"
+// #include <pangolin/pangolin.h>
+
+using namespace Eigen;
 
 namespace ORB_SLAM2
 {
@@ -75,8 +78,9 @@ void ObjectDrawer::DrawObjects(bool bFollow, const Eigen::Matrix4f &Tec)
             continue;
 
         Eigen::Matrix4f Sim3Two = pMO->GetPoseSim3();
-        int idx = pMO->GetRenderId();
 
+        int idx = pMO->GetRenderId();
+        
         if (bFollow) {
             SE3TcwFollow = SE3Tcw;
         }
@@ -84,7 +88,7 @@ void ObjectDrawer::DrawObjects(bool bFollow, const Eigen::Matrix4f &Tec)
         {
             mpRenderer->Render(idx, Tec * SE3TcwFollow * Sim3Two, mvObjectColors[pMO->GetRenderId() % mvObjectColors.size()]);
         }
-        // DrawCuboid(pMO);
+        DrawCuboid(pMO);
     }
 }
 
@@ -146,6 +150,8 @@ void ObjectDrawer::DrawCuboid(MapObject *pMO)
 
     glEnd();
 
+    DrawFrame(w, h, l);
+
     glPopMatrix();
 }
 
@@ -153,6 +159,22 @@ void ObjectDrawer::SetCurrentCameraPose(const Eigen::Matrix4f &Tcw)
 {
     unique_lock<mutex> lock(mMutexObjects);
     SE3Tcw = Tcw;
+}
+
+void ObjectDrawer::DrawFrame(const float w, const float h, const float l)
+{
+    glLineWidth(3);
+    glBegin(GL_LINES);
+    glColor3f(1.0, 0.0, 0.0);
+    glVertex3f(0.0, 0.0, 0.0);
+    glVertex3f(2*w, 0.0, 0.0);
+    glColor3f(0.0, 1.0, 0.0);
+    glVertex3f(0.0, 0.0, 0.0);
+    glVertex3f(0.0, 2*h, 0.0);
+    glColor3f(0.0, 0.0, 1.0);
+    glVertex3f(0.0, 0.0, 0.0);
+    glVertex3f(0.0, 0.0, 2*l);
+    glEnd();
 }
 
 }
